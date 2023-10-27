@@ -1,12 +1,5 @@
-altair
-numpy
-pandas
-pydeck
 streamlit
-pdfminer
 requests
-transformers
-streamlit
-pandas
-numpy
+pdfminer
 nltk
+transformers
