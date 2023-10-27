@@ -15,7 +15,7 @@ st.title("Zambian Automatic Legislative Document Summarizer")
 pdf_url = st.text_input("Enter PDF URL:")
 
 # Create an input field for the user to specify the summarization percentage
-summarization_percentage = st.number_input("Enter Summarization Percentage (e.g., 10 for 10%):", min_value=1, max_value=100, step=1)
+summarization_percentage = st.number_input("Enter Summarization Percentage (e.g., 10 for 10%):", min_value=1, max_value=100, step=1, value=20)  # Set the default value to 20
 
 # Calculate the target length based on the specified percentage
 max_summary_length = summarization_percentage / 100
@@ -43,16 +43,20 @@ if st.button("Summarize"):
         def count_characters(text):
             return len(text) if text is not None else 0
 
-        # Calculate the target summary length based on the original text and user input
         original_text_length = count_characters(FileContent)
+        
         target_length = int(max_summary_length * original_text_length)
+        original_text_description = f"Original text is {original_text_length} characters long."
 
-        st.text(f"Original text length: {original_text_length} characters")
-        st.text(f"Target summary length: {target_length} characters")
+        target_summary_description = f"Target summary should be {max_summary_length * 100}% or less of {original_text_length}, which is about {target_length} characters"
+
+        st.text(original_text_description)
+        st.text(target_summary_description)
+
 
         st.info("Summarizing the document...")
 
-        checkpoint = "google/pegasus-large"
+        checkpoint = "facebook/bart-large-cnn"
         tokenizer = AutoTokenizer.from_pretrained(checkpoint)
         model = AutoModelForSeq2SeqLM.from_pretrained(checkpoint)
 
@@ -84,20 +88,25 @@ if st.button("Summarize"):
         st.info("Generating summaries...")
 
         def generate(inputs, model, tokenizer, max_length):
-            output = model.generate(
-                **inputs,
-                max_length=max_length,
-                do_sample=True,
-                top_k=50,
-                top_p=0.95,
-                temperature=0.7,
-            )
-            return tokenizer.decode(output[0], skip_special_tokens=True)
+            try:
+                output = model.generate(
+                    inputs["input_ids"],
+                    max_length=max_length,
+                    num_beams=4,
+                    no_repeat_ngram_size=2,
+                    length_penalty=2.0,
+                    early_stopping=True,
+                )
+                return tokenizer.decode(output[0], skip_special_tokens=True)
+            except Exception as e:
+                st.error(f"An error occurred during summarization: {e}")
+                return ""
 
         for input_text in chunks:
-            input_dict = tokenizer(input_text, return_tensors="pt")
+            input_dict = tokenizer(input_text, return_tensors="pt", max_length=1024, truncation=True)
             summary = generate(input_dict, model, tokenizer, target_length)
-            st.write(summary)
+            if summary:
+                st.write(summary)
         
         st.success("Summarization complete!")
     else:

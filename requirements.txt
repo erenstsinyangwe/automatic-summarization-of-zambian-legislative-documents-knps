@@ -11,5 +11,3 @@ streamlit
 pandas
 numpy
 nltk
-#--you can use a single line to install all of them #
-#!pip install pdfminer.six requests transformers[sentencepiece] pdfminer.six streamlit pandas numpy altair numpy pandas pydeck streamlit pdfminer.six nltk spacy
