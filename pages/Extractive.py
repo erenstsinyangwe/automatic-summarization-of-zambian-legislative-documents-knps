@@ -5,9 +5,9 @@ from pdfminer.high_level import extract_text
 import spacy
 from spacy.lang.en.stop_words import STOP_WORDS
 import string
-
-# Import nltk and download necessary data
 import nltk
+from string import punctuation
+
 nltk.download('punkt')
 
 # Declare a global variable to store the extracted text
@@ -41,31 +41,44 @@ if st.button("Summarize"):
     if file_content:
         st.text("Summarized Text:")
 
-        # Define a function to count characters in the text
-        def count_characters(text):
-            return len(text) if text is not None else 0
-
-        # Calculate the target summary length based on the original text
-        original_text_length = count_characters(file_content)
-        st.text(f"Original text length: {original_text_length} characters")
-
-        # Tokenize the text
+        stopwords = list(STOP_WORDS)
         nlp = spacy.load('en_core_web_sm')
         doc = nlp(file_content)
-        tokens = [token.text for token in doc]
 
-        # Remove stop words and punctuation
-        filtered_tokens = [token for token in tokens if token.lower() not in STOP_WORDS and token not in string.punctuation]
+        word_frequencies = {}
+        for word in doc:
+            if word.text.lower() not in stopwords and word.text.lower() not in punctuation:
+                if word.text not in word_frequencies.keys():
+                    word_frequencies[word.text] = 1
+                else:
+                    word_frequencies[word.text] += 1
 
-        # Calculate the number of tokens based on the selected summarization percentage
-        selected_tokens = int(len(filtered_tokens) * summarization_percentage / 100)
+        max_frequency = max(word_frequencies.values())
 
-        # Combine the filtered tokens into a summarized text
-        summarized_text = " ".join(filtered_tokens[:selected_tokens])
-        st.text(f"Summarized Text ({summarization_percentage}%):")
+        for word in word_frequencies.keys():
+            word_frequencies[word] = word_frequencies[word] / max_frequency
+
+        sentence_tokens = [sent for sent in doc.sents]
+
+        sentence_scores = {}
+        for sent in sentence_tokens:
+            for word in sent:
+                if word.text.lower() in word_frequencies.keys():
+                    if sent not in sentence_scores.keys():
+                        sentence_scores[sent] = word_frequencies[word.text.lower()]
+                    else:
+                        sentence_scores[sent] += word_frequencies[word.text.lower()]
+
+        select_length = int(len(sentence_tokens) * (summarization_percentage / 100))
+
+        summary = nlargest(select_length, sentence_scores, key=sentence_scores.get)
+
+        final_summary = [word.text for word in summary]
+
+        summarized_text = ' '.join(final_summary)
+
         st.write(summarized_text)
         st.success("Summarization complete!")
 
     else:
-        st.error("Failed to summarize the PDF from the provided URL.")
-
+        st.error("Summarization of the PDF from the provided URL failed. Please ensure the link to the document you want to summarize is valid and accessible")

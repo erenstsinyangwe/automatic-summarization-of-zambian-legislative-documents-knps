@@ -14,8 +14,11 @@ st.title("Zambian Automatic Legislative Document Summarizer")
 # Create a text input field for the PDF URL
 pdf_url = st.text_input("Enter PDF URL:")
 
-# Create a radio button to select the maximum summary length
-max_summary_length = st.radio("Select Maximum Summary Length:", [0.1, 0.2, 0.25, 0.3, 0.5])
+# Create an input field for the user to specify the summarization percentage
+summarization_percentage = st.number_input("Enter Summarization Percentage (e.g., 10 for 10%):", min_value=1, max_value=100, step=1)
+
+# Calculate the target length based on the specified percentage
+max_summary_length = summarization_percentage / 100
 
 # Define a function to extract text from a PDF URL
 def extract_text_from_url(pdf_url):
@@ -28,7 +31,7 @@ def extract_text_from_url(pdf_url):
     except Exception as e:
         return None
 
-# Check if the "Extract Text" button is clicked
+# Check if the "Summarize" button is clicked
 if st.button("Summarize"):
     pdf_text = extract_text_from_url(pdf_url)
     FileContent = pdf_text
@@ -40,12 +43,12 @@ if st.button("Summarize"):
         def count_characters(text):
             return len(text) if text is not None else 0
 
-        # Calculate the target summary length based on the original text
+        # Calculate the target summary length based on the original text and user input
         original_text_length = count_characters(FileContent)
-        target_length = max_summary_length * original_text_length
+        target_length = int(max_summary_length * original_text_length)
 
         st.text(f"Original text length: {original_text_length} characters")
-        st.text(f"Target summary length: {int(target_length)} characters")
+        st.text(f"Target summary length: {target_length} characters")
 
         st.info("Summarizing the document...")
 
@@ -93,9 +96,9 @@ if st.button("Summarize"):
 
         for input_text in chunks:
             input_dict = tokenizer(input_text, return_tensors="pt")
-            summary = generate(input_dict, model, tokenizer, int(target_length))
+            summary = generate(input_dict, model, tokenizer, target_length)
             st.write(summary)
         
         st.success("Summarization complete!")
     else:
-        st.error("Failed to summarize your PDF from the link you provided.")
+        st.error("Summarization of the PDF from the provided URL failed. Please ensure the link to the document you want to summarize is valid and accessible")
