@@ -14,6 +14,9 @@ st.title("Zambian Automatic Legislative Document Summarizer")
 # Create a text input field for the PDF URL
 pdf_url = st.text_input("Enter PDF URL:")
 
+# Create a radio button to select the maximum summary length
+max_summary_length = st.radio("Select Maximum Summary Length:", [0.1, 0.2, 0.25, 0.3, 0.5])
+
 # Define a function to extract text from a PDF URL
 def extract_text_from_url(pdf_url):
     try:
@@ -37,13 +40,16 @@ if st.button("Summarize"):
         def count_characters(text):
             return len(text) if text is not None else 0
 
-        # Show the total number of characters in the extracted text
-        total_characters = count_characters(FileContent)
-        st.text(f"Total characters in the extracted text: {total_characters}")
+        # Calculate the target summary length based on the original text
+        original_text_length = count_characters(FileContent)
+        target_length = max_summary_length * original_text_length
+
+        st.text(f"Original text length: {original_text_length} characters")
+        st.text(f"Target summary length: {int(target_length)} characters")
 
         st.info("Summarizing the document...")
 
-        checkpoint = "nsi319/legal-led-base-16384"
+        checkpoint = "google/pegasus-large"
         tokenizer = AutoTokenizer.from_pretrained(checkpoint)
         model = AutoModelForSeq2SeqLM.from_pretrained(checkpoint)
 
@@ -74,13 +80,22 @@ if st.button("Summarize"):
         # Generate summaries and display them
         st.info("Generating summaries...")
 
-        def generate(inputs, model, tokenizer):
-            output = model.generate(**inputs)
+        def generate(inputs, model, tokenizer, max_length):
+            output = model.generate(
+                **inputs,
+                max_length=max_length,
+                do_sample=True,
+                top_k=50,
+                top_p=0.95,
+                temperature=0.7,
+            )
             return tokenizer.decode(output[0], skip_special_tokens=True)
 
         for input_text in chunks:
             input_dict = tokenizer(input_text, return_tensors="pt")
-            summary = generate(input_dict, model, tokenizer)
+            summary = generate(input_dict, model, tokenizer, int(target_length))
             st.write(summary)
+        
+        st.success("Summarization complete!")
     else:
         st.error("Failed to summarize your PDF from the link you provided.")
