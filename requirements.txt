@@ -3,10 +3,9 @@ numpy
 pandas
 pydeck
 streamlit
-pdfminer.six
+pdfminer
 requests
-transformers[sentencepiece]
-pdfminer.six
+transformers
 streamlit
 pandas
 numpy
