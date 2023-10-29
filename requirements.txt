@@ -1,5 +1,5 @@
-streamlit
+transformers[sentencepiece]
+pdfminer.six
 requests
-pdfminer
-nltk
-transformers
+flask
+summy
