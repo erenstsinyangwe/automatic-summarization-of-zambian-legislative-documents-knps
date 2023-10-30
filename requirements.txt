@@ -1,5 +1,10 @@
 transformers[sentencepiece]
 pdfminer.six
+pdfminer.six[image]
 requests
 flask
 summy
+nltk
+spacy
+pdfminer.high_level
+string
