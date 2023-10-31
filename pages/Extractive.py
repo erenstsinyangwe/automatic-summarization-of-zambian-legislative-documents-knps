@@ -1,88 +1,29 @@
-import streamlit as st
-import requests
-from io import BytesIO
-from pdfminer.high_level import extract_text
-import spacy
-from spacy.lang.en.stop_words import STOP_WORDS
-import nltk
-import string
+ st.write("Loaded")
 
-# Download NLTK data for tokenization
-nltk.download('punkt')
+# name of folder principal
+from transformers import T5Tokenizer, T5ForConditionalGeneration
 
-# Define a function to extract text from a PDF URL
-def extract_text_from_url(pdf_url):
-    response = requests.get(pdf_url)
-    response.raise_for_status()
+model_checkpoint = "stjiris/t5-portuguese-legal-summarization"
+t5_model = T5ForConditionalGeneration.from_pretrained(model_checkpoint)
+t5_tokenizer = T5Tokenizer.from_pretrained(model_checkpoint)
 
-    pdf_stream = BytesIO(response.content)
-    pdf_text = extract_text(pdf_stream)
+preprocess_text = "These are some big words and text and words and text, again, that we want to summarize"
+t5_prepared_Text = "summarize: "+preprocess_text
+#print ("original text preprocessed: \n", preprocess_text)
 
-    return pdf_text
+tokenized_text = t5_tokenizer.encode(t5_prepared_Text, return_tensors="pt").to(device)
 
-# Define a function to calculate word frequencies
-def calculate_word_frequencies(doc):
-    stopwords = list(STOP_WORDS)
-    word_frequencies = {}
-    for word in doc:
-        if word.text.lower() not in stopwords and word.text.lower() not in string.punctuation:
-            if word.text not in word_frequencies:
-                word_frequencies[word.text] = 1
-            else:
-                word_frequencies[word.text] += 1
-    return word_frequencies
 
-# Define a function to calculate sentence scores for summarization
-def calculate_sentence_scores(sentence_tokens, word_frequencies):
-    sentence_scores = {}
-    for sent in sentence_tokens:
-        score = sum(word_frequencies.get(word.text.lower(), 0) for word in sent)
-        sentence_scores[sent] = score
+# summmarize 
+summary_ids = t5_model.generate(tokenized_text,
+                                    num_beams=4,
+                                    no_repeat_ngram_size=2,
+                                    min_length=512,
+                                    max_length=1024,
+                                    early_stopping=True)
 
-    return sentence_scores
+output = t5_tokenizer.decode(summary_ids[0], skip_special_tokens=True)
 
-# Define a function to generate a summary
-def generate_summary(sentence_tokens, sentence_scores, select_length):
-    sorted_sentences = sorted(sentence_tokens, key=lambda x: sentence_scores[x], reverse=True)
-    summary = sorted_sentences[:select_length]
+print ("\n\nSummarized text: \n",output)
 
-    return summary
-
-# Define the Streamlit app
-if __name__ == '__main__':
-    # Set the page configuration
-    st.set_page_config(
-        page_title="Zambian Automatic Legislative Document Summarizer",
-        page_icon="📜"
-    )
-
-    # Create a text input field for the PDF URL
-    pdf_url = st.text_input("Enter PDF URL:")
-
-    # Create radio buttons for summarization percentage
-    summarization_percentage = st.radio("Select Summarization Percentage", [10, 20, 25, 30, 50])
-
-    # Check if the "Summarize" button is clicked
-    if st.button("Summarize"):
-        pdf_text = extract_text_from_url(pdf_url)
-
-        if pdf_text:
-            # Prepare NLP processing
-            nlp = spacy.load('en_core_web_sm')
-            doc = nlp(pdf_text)
-
-            # Calculate word frequencies
-            word_frequencies = calculate_word_frequencies(doc)
-
-            # Tokenize text into sentences
-            sentence_tokens = list(doc.sents)
-
-            # Calculate sentence scores
-            sentence_scores = calculate_sentence_scores(sentence_tokens, word_frequencies)
-
-            # Generate a summary
-            summary = generate_summary(sentence_tokens, sentence_scores, int(len(sentence_tokens) * (summarization_percentage / 100)))
-
-            # Display the summary
-            st.text("Summarized Text:")
-            st.markdown('\n'.join(map(str, summary)))
+st.write("\n\nSummarized text: \n",output)
