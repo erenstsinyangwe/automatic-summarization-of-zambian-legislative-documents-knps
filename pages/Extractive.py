@@ -39,15 +39,26 @@ def main():
         page_icon="📜",
     )
 
-    # Get the text to be summarized from the user
-    input_text = st.text_area("Text to summarize:")
+    # Display a radio button to allow the user to select whether to input text or a PDF link
+    input_type = st.radio(
+        "Select input type:",
+        ("Text", "PDF link"),
+    )
+
+    # Get the text or PDF link to be summarized from the user
+    if input_type == "Text":
+        input_text = st.text_area("Text to summarize:")
+    elif input_type == "PDF link":
+        pdf_link = st.text_input("PDF link:")
+        # Extract the text from the PDF link using a PDF parser
+        text = extract_text_from_pdf(pdf_link)
 
     # Summarize the text
-    summarized_text = summarize_text(input_text)
+    summarized_text = summarize_text(text)
 
     # Display the summarized text
     st.write("Summarized text:")
     st.write(summarized_text)
 
-#if __name__ == "__main__":
-    #main()
+if __name__ == "__main__":
+    main()
