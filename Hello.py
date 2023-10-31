@@ -25,20 +25,20 @@ def run():
 
   # Welcome message
   st.markdown(
-      f"""
-      **Welcome to Summarizer-KNPS, the automatic Zambian legislative documents summarizer!**
+    f"""
+    ## Welcome to Summarizer-KNPS, the automatic Zambian legislative documents summarizer!
 
-      With Summarizer-KNPS, you can quickly and easily summarize long and complex legislative documents, saving you time and effort. Simply paste in the link to the PDF document you want to summarize and select the type of summary you want. Summarizer-KNPS will then generate a summary of the document, highlighting the key points and trends.
+    With Summarizer-KNPS, you can quickly and easily summarize long and complex legislative documents, saving you time and effort. Simply paste in the link to the PDF document you want to summarize and select the type of summary you want. Summarizer-KNPS will then generate a summary of the document, highlighting the key points and trends.
 
-      **Benefits of using Summarizer-KNPS:**
+    **Benefits of using Summarizer-KNPS:**
 
-      * Save time by automatically summarizing long and complex legislative documents.
-      * Better understand the key points of legislative documents.
-      * Identify key trends and patterns in legislative documents.
-      * Make informed decisions about Zambian legislation.
+    * Save time by automatically summarizing long and complex legislative documents.
+    * Better understand the key points of legislative documents.
+    * Identify key trends and patterns in legislative documents.
+    * Make informed decisions about Zambian legislation.
 
-      **Try Summarizer-KNPS today and stay informed about Zambian legislation!**
-      """
+    **Try Summarizer-KNPS today and stay informed about Zambian legislation!**
+    """
   )
 
   # Instructions
