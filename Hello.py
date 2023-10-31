@@ -1,54 +1,74 @@
 import streamlit as st
+import logging
 
-def main():
-    #Runs the Summarizer-KNPS app.
-  
+def run():
+ """
+ Runs the Summarizer-KNPS app.
+ """
 
-    # Page configuration
-    st.set_page_config(
-        page_title="Summarizer-KNPS",
-        page_icon="📜"
-    )
+ # Logger
+ logger = logging.getLogger(__name__)
+ logger.setLevel(logging.INFO)
 
-    # Topbar
-    st.title("Summarizer-KNPS: Your Gateway to Effortless Zambian Legislative Document Summarization")
+ # Page configuration
+ st.set_page_config(
+   page_title="Summarizer-KNPS",
+   page_icon="📜"
+ )
 
-    # Type of summary selection
-    summarization_type = st.selectbox(
-        "Select the type of summary:",
-        ["Abstractive", "Extractive"]
-    )
+ # Set the background color to a light blue
+ st.markdown(
+   """
+   <style>
+   body {
+     background-color: #ADD8E6;
+   }
+   </style>
+   """,
+   unsafe_allow_html=True
+ )
 
-    # Instructions
-    st.markdown(
-        """
-        *How to use Summarizer-KNPS:*
+ # Topbar
+ st.title("Summarizer-KNPS: Your Gateway to Effortless Zambian Legislative Document Summarization")
 
-        1. Visit the [National Assembly Parliament website](https://www.parliament.gov.zm/acts-of-parliament) and find the PDF document you want to summarize.
-        2. Copy the link to the PDF document.
-        3. Select the type of summary.
-        4. Paste the link into the Summarizer-KNPS interface and select the type of summary you want.
-        5. Click the "Summarize" button.
-        6. Read the summary!
+ # Type of summary selection
+ summarization_type = st.selectbox(
+   "Select the type of summary:",
+   ["Abstractive", "Extractive"]
+ )
 
-        *Benefits of using Summarizer-KNPS:*
+ # Instructions
+ st.markdown(
+   """
+   **How to use Summarizer-KNPS:**
 
-        - Save time by automatically summarizing long and complex legislative documents.
-        - Better understand the key points of legislative documents.
-        - Identify key trends and patterns in legislative documents.
-        - Make informed decisions about Zambian legislation.
+   1. Visit the [National Assembly Parliament website](https://www.parliament.gov.zm/acts-of-parliament) and find the PDF document you want to summarize.
+   2. Copy the link to the PDF document.
+   3. Select the type of summary.
+   4. Paste the link into the Summarizer-KNPS interface and select the type of summary you want.
+   5. Click the "Summarize" button.
+   6. Read the summary!
 
-        *Try Summarizer-KNPS today and stay informed about Zambian legislation!*
-        """
-    )
+   **Benefits of using Summarizer-KNPS:**
 
-    # Navigation based on user's selection
-    if summarization_type == "Abstractive":
-        st.markdown("You can navigate to the Abstractive page [here](pages/Abstractive.py).")
-    elif summarization_type == "Extractive":
-        st.markdown("You can navigate to the Extractive page [here](pages/Extractive.py).")
-    else:
-        st.error("Invalid summarization type selected")
+   - Save time by automatically summarizing long and complex legislative documents.
+   - Better understand the key points of legislative documents.
+   - Identify key trends and patterns in legislative documents.
+   - Make informed decisions about Zambian legislation.
 
-if _name_ == "_main_":
-    main()
+   **Try Summarizer-KNPS today and stay informed about Zambian legislation!**
+   """
+ )
+
+ # Navigation based on user's selection
+ if summarization_type == "Abstractive":
+   st.markdown("You can navigate to the Abstractive page [here](pages/Abstractive.py).")
+   logger.info("User selected Abstractive summarization")
+ elif summarization_type == "Extractive":
+   st.markdown("You can navigate to the Extractive page [here](pages/Extractive.py).")
+   logger.info("User selected Extractive summarization")
+ else:
+   logger.error("Invalid summarization type selected")
+
+if __name__ == "__main__":
+ run()
