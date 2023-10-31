@@ -76,4 +76,4 @@ def main():
             st.success("Summarization complete!")
 
 if _name_ == "_main_":
-    main()
+    run()
