@@ -1,75 +1,59 @@
 import streamlit as st
-import requests
-from io import BytesIO
-from pdfminer.high_level import extract_text
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+import requests
+from pdfminer.high_level import extract_text
+import nltk
 
-# Page configuration
-st.set_page_config(
-    page_title="Zambian Legislative Document Summarizer",
-    page_icon="📜"
-)
+# Streamlit app
+st.title("Abstractive Summarizer-knps")
 
-# Declare global variables
-FILE_CONTENT = None
-CHECKPOINT = "EasyTerms/legalSummerizerET"
-TOKENIZER = AutoTokenizer.from_pretrained(CHECKPOINT)
-MODEL = AutoModelForSeq2SeqLM.from_pretrained(CHECKPOINT)
+# User input for PDF link
+pdf_link = st.text_input("Paste the link to a PDF file:")
 
-def extract_text_from_url(pdf_url):
-    try:
-        response = requests.get(pdf_url)
-        response.raise_for_status()
-        pdf_stream = BytesIO(response.content)
-        pdf_text = extract_text(pdf_stream)
-        return pdf_text
-    except Exception as e:
-        return None
+if st.button("Summarize"):
+    # Function to extract text from PDF link
+    def extract_text_from_pdf_url(pdf_url):
+        try:
+            pdf_response = requests.get(pdf_url)
+            with open("temp_pdf.pdf", "wb") as pdf_file:
+                pdf_file.write(pdf_response.content)
+            text = extract_text("temp_pdf.pdf")
+            return text
+        except Exception as e:
+            return str(e)
 
-def summarize_text(text, max_summary_length):
-    try:
-        input_dict = TOKENIZER(text, return_tensors="pt", max_length=1024, truncation=True)
-        summary = MODEL.generate(
-            inputs=input_dict,
-            max_length=max_summary_length,
-            num_beams=4,
-            no_repeat_ngram_size=2,
-            length_penalty=2.0,
-            early_stopping=True,
-        )
-        return TOKENIZER.decode(summary[0], skip_special_tokens=True)
-    except Exception as e:
-        st.error(f"An error occurred during summarization: {e}")
-        return None
+    if pdf_link:
+        # Extract text from the PDF link
+        pdf_text = extract_text_from_pdf_url(pdf_link)
 
-def main():
-    st.title("Zambian Automatic Legislative Document Summarizer")
+        # Store file content in FileContent
+        FileContent = pdf_text.strip()
 
-    pdf_url = st.text_input("Enter PDF URL:")
-    summarization_percentage = st.number_input(
-        "Enter Summarization Percentage (e.g., 10 for 10%):",
-        min_value=1,
-        max_value=100,
-        step=1,
-        value=20
-    )
+        # Initialize tokenizer and model
+        checkpoint = "google/pegasus-large"
+        tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+        model = AutoModelForSeq2SeqLM.from_pretrained(checkpoint)
 
-    if st.button("Summarize"):
-        pdf_text = extract_text_from_url(pdf_url)
+        # Tokenize and summarize the content
+        sentences = nltk.tokenize.sent_tokenize(FileContent)
+        chunks = []
+        for sentence in sentences:
+            chunks.append(sentence)
 
-        if not pdf_text:
-            st.error("Summarization of the PDF from the provided URL failed. Please ensure the link to the document you want to summarize is valid and accessible.")
-            return
+        # Generate summaries
+        summaries = []
+        for chunk in chunks:
+            input_data = tokenizer(chunk, return_tensors="pt", max_length=512, truncation=True)
+            output = model.generate(**input_data)
+            summary = tokenizer.decode(output[0], skip_special_tokens=True)
+            summaries.append(summary)
 
-        # Correction: The global variable FILE_CONTENT should be assigned outside of the `if` statement,
-        # so that it can be used to generate the summary even if the PDF text is not extracted successfully.
-        global FILE_CONTENT
-        FILE_CONTENT = pdf_text
-
-        max_summary_length = int(len(FILE_CONTENT) * (summarization_percentage / 100))
-        summary = summarize_text(FILE_CONTENT, max_summary_length)
-
-        if summary:
-            st.text("Summarized Text:")
+        # Display summaries in Streamlit
+        for summary in summaries:
             st.write(summary)
-            st.success("Summarization complete!")
+    else:
+        st.warning("Please enter a valid PDF link.")
+
+# Cleanup temporary file
+if "temp_pdf.pdf" in os.listdir():
+    os.remove("temp_pdf.pdf")
