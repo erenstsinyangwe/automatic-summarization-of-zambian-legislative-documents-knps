@@ -15,6 +15,7 @@ def run():
   # Welcome message
   st.markdown("""
     ## Zambian Legislative Document Summarizer
+    ### Summarizer-KNPS
 
     Summarize long and complex Zambian legislative documents quickly and easily.
 
