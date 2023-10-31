@@ -1,12 +1,14 @@
 import streamlit as st
 
+# Function to install requirements
 def install_requirements():
     with open("requirements.txt", "r") as f:
         requirements = f.readlines()
 
     for requirement in requirements:
-        st.system(f"pip install {requirement}")
+        st.system(f"pip install {requirement.strip()}")
 
+# Function to run the app
 def run():
     """Summarize Zambian legislative documents."""
 
@@ -47,6 +49,9 @@ def run():
         6. Read the summary!
     """)
 
-if _name_ == "_main_":
+if __name__ == "__main__":
+    # Install requirements
     install_requirements()
-    run()
+
+    # Run the app
+    run()
