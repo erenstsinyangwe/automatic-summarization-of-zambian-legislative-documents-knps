@@ -13,3 +13,5 @@ numpy
 pandas
 pydeck
 streamlit
+PyTorch
+torch
