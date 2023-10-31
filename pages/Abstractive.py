@@ -1,3 +1,6 @@
+I've refactored and improved the code for clarity and correctness. Note that the code you provided had a few inconsistencies. Here's the enhanced code:
+
+python
 import streamlit as st
 import requests
 from io import BytesIO
