@@ -1,15 +1,11 @@
 import streamlit as st
 
-def run(summarizer_knps):
-  """Summarize Zambian legislative documents using Summarizer-KNPS.
-
-  Args:
-    summarizer_knps: A Summarizer-KNPS object.
-  """
+def run():
+  """Summarize Zambian legislative documents."""
 
   # Set page configuration
   st.set_page_config(
-    page_title="Summarizer-KNPS | Zambian Legislative Document Summarizer",
+    page_title="Zambian Legislative Document Summarizer",
     page_icon="📜",
   )
 
@@ -18,7 +14,7 @@ def run(summarizer_knps):
 
   # Welcome message
   st.markdown("""
-    ## Summarizer-KNPS: Zambian Legislative Document Summarizer
+    ## Zambian Legislative Document Summarizer
 
     Summarize long and complex Zambian legislative documents quickly and easily.
 
@@ -45,4 +41,4 @@ def run(summarizer_knps):
   """)
 
 if __name__ == "__main__":
-  run(SummarizerKNPS())
+  run()
