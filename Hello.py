@@ -1,9 +1,7 @@
 import streamlit as st
 
 def run():
-  """Summarize Zambian legislative documents.
-     Summarixer-knps
-  """
+  """Summarize Zambian legislative documents."""
 
   # Set page configuration
   st.set_page_config(
@@ -17,23 +15,22 @@ def run():
   # Welcome message
   st.markdown("""
     ## Zambian Legislative Document Summarizer
-    ### Summarixer-knps
 
     Summarize long and complex Zambian legislative documents quickly and easily.
 
-    *Benefits:*
+    **Benefits:**
 
     * Save time.
     * Understand key points better.
     * Identify key trends and patterns.
     * Make informed decisions.
 
-    *Try it today!*
+    **Try it today!**
   """)
 
   # Instructions
   st.markdown("""
-    *How to use:*
+    **How to use:**
 
     1. Go to the [National Assembly Parliament website](https://www.parliament.gov.zm/acts-of-parliament) and find the PDF document you want to summarize.
     2. Copy the link to the PDF document.
@@ -43,5 +40,5 @@ def run():
     6. Read the summary!
   """)
 
-if _name_ == "_main_":
-  run()
+if __name__ == "__main__":
+  run()
