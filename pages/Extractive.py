@@ -49,5 +49,5 @@ def main():
     st.write("Summarized text:")
     st.write(summarized_text)
 
-if __name__ == "__main__":
-    main()
+#if __name__ == "__main__":
+    #main()
