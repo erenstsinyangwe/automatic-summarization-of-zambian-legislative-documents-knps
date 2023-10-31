@@ -1,16 +1,18 @@
 import streamlit as st
+import subprocess
 
-# Function to install requirements
 def install_requirements():
     with open("requirements.txt", "r") as f:
         requirements = f.readlines()
 
     for requirement in requirements:
-        st.system(f"pip install {requirement.strip()}")
+        subprocess.run(["pip", "install", requirement])
 
-# Function to run the app
-def run():
+def main():
     """Summarize Zambian legislative documents."""
+
+    # Install necessary requirements
+    install_requirements()
 
     # Set page configuration
     st.set_page_config(
@@ -49,9 +51,5 @@ def run():
         6. Read the summary!
     """)
 
-if __name__ == "__main__":
-    # Install requirements
-    install_requirements()
-
-    # Run the app
-    run()
+if _name_ == "_main_":
+    main()
