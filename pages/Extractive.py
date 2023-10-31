@@ -1,4 +1,6 @@
- st.write("Loaded")
+import streamlit as st
+
+st.write("Loaded")
 
 # name of folder principal
 from transformers import T5Tokenizer, T5ForConditionalGeneration
