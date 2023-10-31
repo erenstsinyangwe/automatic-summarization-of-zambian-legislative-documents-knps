@@ -60,4 +60,4 @@ def main():
         logger.error("Invalid summarization type selected")
 
 if _name_ == "_main_":
-    main()
+    run()
