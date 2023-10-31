@@ -1,25 +1,17 @@
 import streamlit as st
-import subprocess
 from transformers import T5Tokenizer, T5ForConditionalGeneration
 
-# Function to install requirements from requirements.txt
-def install_requirements():
-    with open("requirements.txt", "r") as f:
-        requirements = f.readlines()
+# Name of the folder containing the pre-trained model
+model_checkpoint = "stjiris/t5-portuguese-legal-summarization"
 
-    for requirement in requirements:
-        subprocess.run(["pip", "install", requirement], capture_output=True)
-
-# Function to summarize text using a pre-trained T5 model
-def summarize_text():
-    # Name of the folder containing the pre-trained model
-    model_checkpoint = "stjiris/t5-portuguese-legal-summarization"
-    t5_model = T5ForConditionalGeneration.from_pretrained(model_checkpoint)
+# Function to summarize text using the pre-trained T5 model
+def summarize_text(text):
+    # Load the pre-trained model
     t5_tokenizer = T5Tokenizer.from_pretrained(model_checkpoint)
+    t5_model = T5ForConditionalGeneration.from_pretrained(model_checkpoint)
 
     # Preprocess the text to be summarized
-    preprocess_text = "These are some big words and text that we want to summarize."
-    t5_prepared_text = "summarize: " + preprocess_text
+    t5_prepared_text = "summarize: " + text
 
     # Encode the preprocessed text into tokens
     tokenized_text = t5_tokenizer.encode(t5_prepared_text, return_tensors="pt")
@@ -41,19 +33,21 @@ def summarize_text():
 
 # Main function to run the app
 def main():
-    # Install necessary requirements
-    install_requirements()
-
     # Set page configuration
     st.set_page_config(
         page_title="Zambian Legislative Document Summarizer",
         page_icon="📜",
     )
 
-    # Display the summarized text using Streamlit
+    # Get the text to be summarized from the user
+    input_text = st.text_area("Text to summarize:")
+
+    # Summarize the text
+    summarized_text = summarize_text(input_text)
+
+    # Display the summarized text
     st.write("Summarized text:")
-    summarized_text = summarize_text()
     st.write(summarized_text)
 
-if _name_ == "_main_":
-    main()
+if __name__ == "__main__":
+    main()
