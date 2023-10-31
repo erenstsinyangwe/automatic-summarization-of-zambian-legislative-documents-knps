@@ -73,6 +73,3 @@ def main():
             st.text("Summarized Text:")
             st.write(summary)
             st.success("Summarization complete!")
-
-if __name__ == "__main__":
-    main()
