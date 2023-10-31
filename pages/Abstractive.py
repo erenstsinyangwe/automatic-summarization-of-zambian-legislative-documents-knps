@@ -12,7 +12,7 @@ st.set_page_config(
 
 # Declare global variables
 FILE_CONTENT = None
-CHECKPOINT = "nsi319/legal-led-base-16384"
+CHECKPOINT = "EasyTerms/legalSummerizerET"
 TOKENIZER = AutoTokenizer.from_pretrained(CHECKPOINT)
 MODEL = AutoModelForSeq2SeqLM.from_pretrained(CHECKPOINT)
 
