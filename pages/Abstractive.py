@@ -15,19 +15,18 @@ if st.button("Summarize"):
     def extract_text_from_pdf_url(pdf_url):
         try:
             pdf_response = requests.get(pdf_url)
-            with open("temp_pdf.pdf", "wb") as pdf_file:
-                pdf_file.write(pdf_response.content)
-            text = extract_text("temp_pdf.pdf")
-            return text
+            pdf_text = extract_text(pdf_response.content)
+            return pdf_text
         except Exception as e:
             return str(e)
 
+    # Check if PDF link is empty
     if pdf_link:
         # Extract text from the PDF link
         pdf_text = extract_text_from_pdf_url(pdf_link)
 
-        # Store file content in FileContent
-        FileContent = pdf_text.strip()
+        # Store file content in a variable
+        file_content = pdf_text.strip()
 
         # Initialize tokenizer and model
         checkpoint = "google/pegasus-large"
@@ -35,13 +34,15 @@ if st.button("Summarize"):
         model = AutoModelForSeq2SeqLM.from_pretrained(checkpoint)
 
         # Tokenize and summarize the content
-        sentences = nltk.tokenize.sent_tokenize(FileContent)
+        sentences = nltk.tokenize.sent_tokenize(file_content)
         chunks = []
+
         for sentence in sentences:
             chunks.append(sentence)
 
         # Generate summaries
         summaries = []
+
         for chunk in chunks:
             input_data = tokenizer(chunk, return_tensors="pt", max_length=512, truncation=True)
             output = model.generate(**input_data)
@@ -53,7 +54,3 @@ if st.button("Summarize"):
             st.write(summary)
     else:
         st.warning("Please enter a valid PDF link.")
-
-# Cleanup temporary file
-if "temp_pdf.pdf" in os.listdir():
-    os.remove("temp_pdf.pdf")
