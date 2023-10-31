@@ -6,13 +6,13 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 # Page configuration
 st.set_page_config(
-    page_title="Summarizer-KNPS",
+    page_title="Zambian Legislative Document Summarizer",
     page_icon="📜"
 )
 
 # Declare global variables
 FILE_CONTENT = None
-CHECKPOINT = "nsi319/legal-pegasus"
+CHECKPOINT = "nsi319/legal-led-base-16384"
 TOKENIZER = AutoTokenizer.from_pretrained(CHECKPOINT)
 MODEL = AutoModelForSeq2SeqLM.from_pretrained(CHECKPOINT)
 
@@ -64,13 +64,13 @@ def main():
         global FILE_CONTENT
         FILE_CONTENT = pdf_text
 
-        max_summary_length = int(summarization_percentage / 100 * len(FILE_CONTENT))
-
+        max_summary_length = int(len(FILE_CONTENT) * (summarization_percentage / 100))
         summary = summarize_text(FILE_CONTENT, max_summary_length)
-        st.text("Summarized Text:")
-        st.write(summary)
 
-        st.success("Summarization complete!")
+        if summary:
+            st.text("Summarized Text:")
+            st.write(summary)
+            st.success("Summarization complete!")
 
-if __name__ == "__main__":
-    main()
+if _name_ == "_main_":
+    main()
