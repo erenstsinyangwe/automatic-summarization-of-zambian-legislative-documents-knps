@@ -1,6 +1,3 @@
-I've refactored and improved the code for clarity and correctness. Note that the code you provided had a few inconsistencies. Here's the enhanced code:
-
-python
 import streamlit as st
 import requests
 from io import BytesIO
@@ -64,6 +61,8 @@ def main():
             st.error("Summarization of the PDF from the provided URL failed. Please ensure the link to the document you want to summarize is valid and accessible.")
             return
 
+        # Correction: The global variable FILE_CONTENT should be assigned outside of the `if` statement,
+        # so that it can be used to generate the summary even if the PDF text is not extracted successfully.
         global FILE_CONTENT
         FILE_CONTENT = pdf_text
 
@@ -75,5 +74,5 @@ def main():
             st.write(summary)
             st.success("Summarization complete!")
 
-if _name_ == "_main_":
-    run()
+if __name__ == "__main__":
+    main()
