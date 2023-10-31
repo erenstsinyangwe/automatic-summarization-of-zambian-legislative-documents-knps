@@ -1,24 +1,34 @@
 import streamlit as st
-import subprocess
+import transformers
+import requests
+from pdfminer.high_level import extract_text
+import nltk
 
-# Function to install requirements
-def install_requirements():
-    with open("requirements.txt", "r") as f:
-        requirements = f.readlines()
 
-    for requirement in requirements:
-        subprocess.run(["pip", "install", requirement], capture_output=True)
+# Function to extract text from PDF URL
+def extract_text_from_pdf_url(pdf_url):
+    """Extracts the text from a PDF file.
 
-# Function to run the app
+    Args:
+        pdf_url (str): The link to the PDF file.
+
+    Returns:
+        str: The text extracted from the PDF file.
+    """
+
+    try:
+        pdf_response = requests.get(pdf_url)
+        pdf_text = extract_text(pdf_response.content)
+        return pdf_text
+    except Exception as e:
+        return str(e)
+
+
+# Streamlit app
 def main():
-    """Summarize Zambian legislative documents."""
-
-    # Install necessary requirements
-    install_requirements()
-
     # Set page configuration
     st.set_page_config(
-        page_title="Zambian Legislative Document Summarizer",
+        page_title="Abstractive Summarizer-knps",
         page_icon="📜",
     )
 
@@ -27,89 +37,65 @@ def main():
 
     # Welcome message
     st.markdown("""
-        ## Zambian Legislative Document Summarizer: Summarizer-knps
+    ## Zambian Legislative Document Summarizer: Summarizer-knps
 
-        Summarize long and complex Zambian legislative documents quickly and easily.
+    Summarize long and complex Zambian legislative documents quickly and easily.
 
-        *Benefits:*
+    *Benefits:*
 
-        - Save time.
-        - Understand key points better.
-        - Identify key trends and patterns.
-        - Make informed decisions.
+    - Save time.
+    - Understand key points better.
+    - Identify key trends and patterns.
+    - Make informed decisions.
 
-        *Try it today!*
+    *Try it today!*
     """)
 
     # Instructions
     st.markdown("""
-        *How to use:*
+    *How to use:*
 
-        1. Go to the [National Assembly Parliament website](https://www.parliament.gov.zm/acts-of-parliament) and find the PDF document you want to summarize.
-        2. Copy the link to the PDF document.
-        3. Select the type of summary you want.
-        4. Paste the link into the Summarizer-KNPS interface and select the type of summary you want.
-        5. Click the "Summarize" button.
-        6. Read the summary!
+    1. Go to the [National Assembly Parliament website](https://www.parliament.gov.zm/acts-of-parliament) and find the PDF document you want to summarize.
+    2. Copy the link to the PDF document.
+    3. Paste the link into the Summarizer-KNPS interface and select the type of summary you want.
+    4. Click the "Summarize" button.
+    5. Read the summary!
     """)
-#....................................................................................
 
-import streamlit as st
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-import requests
-from pdfminer.high_level import extract_text
-import nltk
+    # User input for PDF link
+    pdf_link = st.text_input("Paste the link to a PDF file:")
 
-# Streamlit app
-st.title("Abstractive Summarizer-knps")
+    if st.button("Summarize"):
+        # Check if PDF link is empty
+        if pdf_link:
+            # Extract text from the PDF link
+            pdf_text = extract_text_from_pdf_url(pdf_link)
 
-# User input for PDF link
-pdf_link = st.text_input("Paste the link to a PDF file:")
+            # Initialize tokenizer and model
+            checkpoint = "google/pegasus-large"
+            tokenizer = transformers.AutoTokenizer.from_pretrained(checkpoint)
+            model = transformers.AutoModelForSeq2SeqLM.from_pretrained(checkpoint)
 
-if st.button("Summarize"):
-    # Function to extract text from PDF link
-    def extract_text_from_pdf_url(pdf_url):
-        try:
-            pdf_response = requests.get(pdf_url)
-            pdf_text = extract_text(pdf_response.content)
-            return pdf_text
-        except Exception as e:
-            return str(e)
+            # Tokenize and summarize the content
+            sentences = nltk.tokenize.sent_tokenize(pdf_text.strip())
+            chunks = []
 
-    # Check if PDF link is empty
-    if pdf_link:
-        # Extract text from the PDF link
-        pdf_text = extract_text_from_pdf_url(pdf_link)
+            for sentence in sentences:
+                chunks.append(sentence)
 
-        # Store file content in a variable
-        file_content = pdf_text.strip()
+            summaries = []
 
-        # Initialize tokenizer and model
-        checkpoint = "google/pegasus-large"
-        tokenizer = AutoTokenizer.from_pretrained(checkpoint)
-        model = AutoModelForSeq2SeqLM.from_pretrained(checkpoint)
+            for chunk in chunks:
+                input_data = tokenizer(chunk, return_tensors="pt", max_length=512, truncation=True)
+                output = model.generate(**input_data)
+                summary = tokenizer.decode(output[0], skip_special_tokens=True)
+                summaries.append(summary)
 
-        # Tokenize and summarize the content
-        sentences = nltk.tokenize.sent_tokenize(file_content)
-        chunks = []
-
-        for sentence in sentences:
-            chunks.append(sentence)
-
-        # Generate summaries
-        summaries = []
-
-        for chunk in chunks:
-            input_data = tokenizer(chunk, return_tensors="pt", max_length=512, truncation=True)
-            output = model.generate(**input_data)
-            summary = tokenizer.decode(output[0], skip_special_tokens=True)
-            summaries.append(summary)
-
-        # Display summaries in Streamlit
-        for summary in summaries:
-            st.write(summary)
-    else:
-        st.warning("Please enter a valid PDF link.")
+            # Display summaries in Streamlit
+            for summary in summaries:
+                st.write(summary)
+        else:
+            st.warning("Please enter a valid PDF link.")
 
 
 if __name__ == "__main__":
