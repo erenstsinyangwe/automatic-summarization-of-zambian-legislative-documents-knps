@@ -2,9 +2,8 @@ import streamlit as st
 import logging
 
 def run():
- """
- Runs the Summarizer-KNPS app.
- """
+  
+ # Runs the Summarizer-KNPS app.
 
  # Logger
  logger = logging.getLogger(__name__)
