@@ -59,5 +59,5 @@ def main():
         st.error("Invalid summarization type selected")
         logger.error("Invalid summarization type selected")
 
-if _name_ == "__main__":
-    run()
+if __name__ == "__main__":
+    main()
