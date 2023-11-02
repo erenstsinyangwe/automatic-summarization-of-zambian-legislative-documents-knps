@@ -14,7 +14,7 @@ subprocess.run(
         "torch",
         "torchvision",
         "torchaudio",
-        "torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118",
+        "torch",
         "transformers",
         "spacy",
         "numpy",
