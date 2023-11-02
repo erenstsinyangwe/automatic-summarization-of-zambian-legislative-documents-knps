@@ -9,6 +9,15 @@ subprocess.run(['pip', 'install', 'transformers[sentencepiece]', 'pdfminer.six',
 
 # Function to extract text from a PDF file
 def extract_text_from_pdf(pdf_file_path):
+    """Extracts text from a PDF file.
+
+    Args:
+        pdf_file_path: The path to the PDF file.
+
+    Returns:
+        The extracted text.
+    """
+
     response = requests.get(pdf_file_path)
     with open("temp.pdf", "wb") as pdf_file:
         pdf_file.write(response.content)
@@ -22,9 +31,11 @@ input_type = st.radio("Choose input type:", ("PDF Link", "Text Input"))
 
 if input_type == "PDF Link":
     pdf_file_path = st.text_input("Enter the link to the PDF file:")
+
     if st.button("Summarize"):
         with st.empty():
             st.text("Summarizing... Please wait.")
+
             try:
                 pdf_text = extract_text_from_pdf(pdf_file_path)
             except Exception as e:
@@ -32,6 +43,7 @@ if input_type == "PDF Link":
                 pdf_text = None
 else:
     text_input = st.text_area("Enter the text:")
+
     if st.button("Summarize"):
         with st.empty():
             st.text("Summarizing... Please wait.")
@@ -54,8 +66,9 @@ if pdf_text is not None:
         output = model.generate(tokenizer.encode("Summary: " + chunk, return_tensors="pt"))
         generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
         st.write(generated_text)
+
     st.text("Summarization complete.")
 
 # Run Streamlit app
-if _name_ == "_main_":
-    st.run_app()
+if __name__ == "__main__":
+    st.run_app()
