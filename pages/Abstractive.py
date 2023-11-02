@@ -59,3 +59,10 @@ if pdf_text is not None:
         generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
         st.write(generated_text)
     st.text("Summarization complete.")
+
+# Define pdf_text
+pdf_text = None  # Initialize pdf_text as None
+
+# Run Streamlit app
+if __name__ == "__main__":
+    st.run_app()
