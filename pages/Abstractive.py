@@ -5,19 +5,11 @@ from pdfminer.high_level import extract_text
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 # Install required packages
-subprocess.run(['pip', 'install', 'transformers[sentencepiece]', 'pdfminer.six', 'torch'])
+required_packages = ['transformers[sentencepiece]', 'pdfminer.six', 'torch']
+subprocess.run(['pip', 'install'] + required_packages)
 
 # Function to extract text from a PDF file
 def extract_text_from_pdf(pdf_file_path):
-    """Extracts text from a PDF file.
-
-    Args:
-        pdf_file_path: The path to the PDF file.
-
-    Returns:
-        The extracted text.
-    """
-
     response = requests.get(pdf_file_path)
     with open("temp.pdf", "wb") as pdf_file:
         pdf_file.write(response.content)
@@ -73,5 +65,5 @@ if pdf_text is not None:
     st.text("Summarization complete.")
 
 # Run Streamlit app
-if __name__ == "__main__":
-    st.run_app()
+if _name_ == "_main_":
+    st.run_app()
