@@ -50,7 +50,7 @@ def summarize(text, per):
     for word in word_frequencies.keys():
         word_frequencies[word] = word_frequencies[word] / max_frequency
     sentence_tokens = [sent for sent in doc.sents]
-    sentence_scores = {}
+    sentence_scores = {}  # Initialize to an empty dictionary
     for sent in sentence_tokens:
         for word in sent:
             if word.text.lower() in word_frequencies.keys():
@@ -94,21 +94,11 @@ def main():
             # Tokenize the text into sentences
             sentences = sent_tokenize(raw)
 
-            # Store the extracted sentences as a string variable
-            text = '\n'.join(sentences)
+            # Summarize the text
+            summary = summarize(raw, summary_length/100)
 
-            # Replace '\n' with moving to the next line
-            text = text.replace('\n', '\n')
+            # Display the summary
+            st.success(summary)
 
-            # Perform summarization
-            final_summary = summarize(text, summary_length/100)
-
-            # Display success message and the summary
-            st.success("Summarization successful!")
-            st.text_area("Summary", value=final_summary, height=200)
-        else:
-            # Display error message if PDF link is not provided
-            st.error("Please enter the link to the PDF file.")
-
-# Run the Streamlit app
-main()
+if __name__ == '__main__':
+    main()
