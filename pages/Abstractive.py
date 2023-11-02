@@ -1,7 +1,7 @@
 import subprocess
 
 # Install required packages
-subprocess.run(['pip', 'install', 'transformers[sentencepiece]', 'pdfminer.six', 'U nltk', 'U nltk'])
+subprocess.run(['pip', 'install', 'transformers[sentencepiece]', 'pdfminer.six', 'nltk'])
 
 import streamlit as st
 import requests
