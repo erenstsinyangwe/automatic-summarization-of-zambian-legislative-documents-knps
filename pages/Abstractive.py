@@ -5,7 +5,7 @@ from pdfminer.high_level import extract_text
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 # Install required packages
-subprocess.run(['pip', 'install', 'transformers[sentencepiece]', 'pdfminer.six', 'torch', 'torchvision', 'torchaudio'])
+subprocess.run(['pip', 'install', 'transformers[sentencepiece]', 'pdfminer.six', 'torch', 'torchvision', 'torchaudio', 'torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118'])
 
 # Function to extract text from a PDF file
 def extract_text_from_pdf(pdf_file_path):
