@@ -88,5 +88,5 @@ def main():
             # Display the summary
             st.success(summary)
 
-if _name_ == '_main_':
+if '_name_' == '_main_':
     main()
