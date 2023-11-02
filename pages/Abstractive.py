@@ -23,6 +23,9 @@ def extract_text_from_pdf(pdf_file_path):
         pdf_file.write(response.content)
     return extract_text("temp.pdf").strip()
 
+# Initialize the pdf_text variable
+pdf_text = None
+
 # Streamlit app
 st.title("Text Summarizer")
 
@@ -49,7 +52,7 @@ else:
             st.text("Summarizing... Please wait.")
             pdf_text = text_input
 
-# Check if text is available
+# Check if the pdf_text variable is empty
 if pdf_text is not None:
     # Initialize Hugging Face models
     checkpoint = "nsi319/legal-pegasus"
