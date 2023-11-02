@@ -1,3 +1,4 @@
+import streamlit as st
 import heapq
 from typing import Dict, List, Union
 
@@ -34,6 +35,32 @@ def format_text(content: str) -> str:
   content = re.sub(r"\n", "\n", content)
   return content
 
+def calculate_word_count(text: str) -> int:
+  """Calculates the word count of the given text.
+
+  Args:
+    text: A string containing the text to be counted.
+
+  Returns:
+    An integer representing the word count of the text.
+  """
+
+  words = text.split()
+  return len(words)
+
+def calculate_summary_percentage(word_count: int, summary_length: int) -> float:
+  """Calculates the percentage of the content that is being summarized.
+
+  Args:
+    word_count: The word count of the entire text.
+    summary_length: The length of the summary in words.
+
+  Returns:
+    A float representing the percentage of the content that is being summarized.
+  """
+
+  return summary_length / word_count * 100
+
 def summarize(text: str, per: float) -> str:
   """Summarizes the given text by selecting the top `per` percentage of sentences based on their word frequencies.
 
@@ -53,4 +80,35 @@ def summarize(text: str, per: float) -> str:
         if word.lower() not in word_frequencies:
           word_frequencies[word.lower()] = 1
         else:
-          word_frequencies[word.lower()] +=
+          word_frequencies[word.lower()] += 1
+
+  word_count = calculate_word_count(text)
+  summary_length = int(word_count * (per / 100))
+
+  # Select the top `per` percentage of sentences based on their word frequencies.
+  sentence_scores = {}
+  for sentence in sentences:
+    for word in sentence.split():
+      if word.lower() in word_frequencies:
+        if sentence not in sentence_scores:
+          sentence_scores[sentence] = word_frequencies[word.lower()]
+        else:
+          sentence_scores[sentence] += word_frequencies[word.lower()]
+
+  select_length = summary_length
+  summary = nlargest(select_length, sentence_scores, key=sentence_scores.get)
+  summary = '. '.join(summary)
+
+  # Return the summary with the word count and the percentage of the content that is being summarized.
+  return f"Word count: {word_count}\nPercentage of content summarized: {per:.2f}%\n\nSummary:\n{summary}"
+
+# Streamlit app
+def main():
+  # Set page title
+  st.title("PDF Summarization")
+
+  # Input link to the PDF file
+  pdf_link = st.text_input("Enter the link to the PDF file")
+
+  # Input option for the desired percentage
+  summary_percentage = st.slider("Select the percentage
