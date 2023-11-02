@@ -1,11 +1,8 @@
-import subprocess
 import streamlit as st
 import requests
 from pdfminer.high_level import extract_text
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
-# Install required packages
-subprocess.run(['pip', 'install', 'transformers[sentencepiece]', 'pdfminer.six'])
 
 # Define a function to extract text from a PDF file
 def extract_text_from_pdf(pdf_file_path):
@@ -14,6 +11,7 @@ def extract_text_from_pdf(pdf_file_path):
         pdf_file.write(response.content)
     return extract_text("temp.pdf").strip()
 
+
 # Streamlit app
 st.title("Text Summarizer")
 
@@ -21,27 +19,21 @@ st.title("Text Summarizer")
 input_type = st.radio("Choose input type:", ("PDF Link", "Text Input"))
 if input_type == "PDF Link":
     pdf_file_path = st.text_input("Enter the link to the PDF file:")
-    if st.button("Summarize"):
-        with st.empty():
-            st.text("Summarizing... Please wait.")
-            try:
-                pdf_text = extract_text_from_pdf(pdf_file_path)
-            except Exception as e:
-                st.error(f"Summarization failed: {str(e)}")
-                pdf_text = None
-else:
+elif input_type == "Text Input":
     text_input = st.text_area("Enter the text:")
-    if st.button("Summarize"):
-        with st.empty():
-            st.text("Summarizing... Please wait.")
-            pdf_text = text_input
 
 # Check if text is available
-if pdf_text is not None:
+if pdf_file_path or text_input:
     # Initialize Hugging Face models
     checkpoint = "nsi319/legal-pegasus"
     tokenizer = AutoTokenizer.from_pretrained(checkpoint)
     model = AutoModelForSeq2SeqLM.from_pretrained(checkpoint)
+
+    # Get the text to summarize
+    if pdf_file_path:
+        pdf_text = extract_text_from_pdf(pdf_file_path)
+    else:
+        pdf_text = text_input
 
     # Tokenize and summarize the text
     sentences = pdf_text.split(".")
