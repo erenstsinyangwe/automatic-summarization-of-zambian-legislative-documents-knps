@@ -1,92 +1,56 @@
-import streamlit as st
-import requests
-import re
-from string import punctuation
-from heapq import nlargest
-from pdfminer.high_level import extract_text
+import heapq
+from typing import Dict, List, Union
 
-# Define a function to extract text from a PDF file
-def extract_text_from_pdf(pdf_file_path):
-    try:
-        # Get the PDF file from the specified path
-        response = requests.get(pdf_file_path)
-        # Write the PDF content to a temporary file
-        with open("temp.pdf", "wb") as pdf_file:
-            pdf_file.write(response.content)
-        # Extract text from the temporary file
-        text = extract_text("temp.pdf")
-        return text
-    except Exception as e:
-        return str(e)
+def extract_pdf_text(pdf_link: str) -> str:
+  """Extracts text from a PDF file at the given link.
 
-# Format the text
-def format_text(content):
-    """Formats the given text by replacing multiple whitespaces with a single space and replacing newline characters with a line break."""
-    # Replace multiple whitespaces with a single space
-    content = re.sub(r'\s+', ' ', content)
-    # Replace newline characters with a line break
-    content = re.sub(r'\n', '\n', content)
-    return content
+  Args:
+    pdf_link: A string containing the link to the PDF file.
 
-# Summarize the text
-def summarize(text, per):
-    sentences = text.split('. ')
-    word_frequencies = {}
-    for sentence in sentences:
-        for word in sentence.split():
-            if word.lower() not in punctuation:
-                if word.lower() not in word_frequencies:
-                    word_frequencies[word.lower()] = 1
-                else:
-                    word_frequencies[word.lower()] += 1
-    max_frequency = max(word_frequencies.values())
-    for word in word_frequencies:
-        word_frequencies[word] = word_frequencies[word] / max_frequency
-    sentence_scores = {}
-    for sentence in sentences:
-        for word in sentence.split():
-            if word.lower() in word_frequencies:
-                if sentence not in sentence_scores:
-                    sentence_scores[sentence] = word_frequencies[word.lower()]
-                else:
-                    sentence_scores[sentence] += word_frequencies[word.lower()]
-    select_length = int(len(sentences) * per)
-    summary = nlargest(select_length, sentence_scores, key=sentence_scores.get)
-    summary = '. '.join(summary)
-    return summary
+  Returns:
+    A string containing the extracted text from the PDF file.
+  """
 
-# Streamlit app
-def main():
-    # Set page title
-    st.title("PDF Summarization")
+  try:
+    response = requests.get(pdf_link)
+    with open("temp.pdf", "wb") as pdf_file:
+      pdf_file.write(response.content)
+    text = extract_text("temp.pdf")
+  except Exception as e:
+    raise RuntimeError(f"Failed to extract text from PDF file: {e}")
+  return text
 
-    # Input link to the PDF file
-    pdf_link = st.text_input("Enter the link to the PDF file")
+def format_text(content: str) -> str:
+  """Formats the given text by replacing multiple whitespaces with a single space and replacing newline characters with a line break.
 
-    # Input option for the length of the summary
-    summary_length = st.slider("Select the length of the summary (in percentage)", 0, 100, 50)
+  Args:
+    content: A string containing the text to be formatted.
 
-    # Radio button to initiate summarization
-    if st.button("Summarize"):
-        # Check if PDF link is provided
-        if pdf_link:
-            # Display progress message
-            st.info("Summarization in progress...")
+  Returns:
+    A string containing the formatted text.
+  """
 
-            # Extract text from the PDF file
-            pdf_text = extract_text_from_pdf(pdf_link)
+  content = re.sub(r"\s+", " ", content)
+  content = re.sub(r"\n", "\n", content)
+  return content
 
-            # Store the extracted text as a string variable
-            content = pdf_text.strip()
+def summarize(text: str, per: float) -> str:
+  """Summarizes the given text by selecting the top `per` percentage of sentences based on their word frequencies.
 
-            # Format the text
-            raw = format_text(content)
+  Args:
+    text: A string containing the text to be summarized.
+    per: A float between 0 and 100 representing the percentage of sentences to be selected for the summary.
 
-            # Summarize the text
-            summary = summarize(raw, summary_length / 100)
+  Returns:
+    A string containing the summary of the text.
+  """
 
-            # Display the summary
-            st.success(summary)
-
-if '_name_' == '_main_':
-    main()
+  sentences = text.split(". ")
+  word_frequencies = {}
+  for sentence in sentences:
+    for word in sentence.split():
+      if word.lower() not in punctuation:
+        if word.lower() not in word_frequencies:
+          word_frequencies[word.lower()] = 1
+        else:
+          word_frequencies[word.lower()] +=
