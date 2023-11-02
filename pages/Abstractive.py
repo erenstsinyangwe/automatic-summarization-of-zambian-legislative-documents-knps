@@ -1,18 +1,35 @@
 import subprocess
 import streamlit as st
 import requests
+import transformers
+
 from pdfminer.high_level import extract_text
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
-# Install required packages
-subprocess.run(['pip', 'install', 'transformers[sentencepiece]', 'pdfminer.six', 'torch', 'torchvision', 'torchaudio', 'torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118'])
+# Install required packages (if not already installed)
+subprocess.run(
+    [
+        "pip",
+        "install",
+        "transformers[sentencepiece]",
+        "pdfminer.six",
+        "torch",
+        "torchvision",
+        "torchaudio",
+        "torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118",
+        "transfomers",
+        "spacy",
+        "nampy",
+    ],
+    check=True,
+)
 
 # Function to extract text from a PDF file
 def extract_text_from_pdf(pdf_file_path):
-  response = requests.get(pdf_file_path)
-  with open("temp.pdf", "wb") as pdf_file:
-    pdf_file.write(response.content)
-  return extract_text("temp.pdf").strip()
+    response = requests.get(pdf_file_path)
+    with open("temp.pdf", "wb") as pdf_file:
+        pdf_file.write(response.content)
+    return extract_text("temp.pdf").strip()
 
 # Initialize the pdf_text variable
 pdf_text = None
@@ -24,41 +41,46 @@ st.title("Text Summarizer")
 input_type = st.radio("Choose input type:", ("PDF Link", "Text Input"))
 
 if input_type == "PDF Link":
-  pdf_file_path = st.text_input("Enter the link to the PDF file:")
+    pdf_file_path = st.text_input("Enter the link to the PDF file:")
 
-  if st.button("Summarize"):
-    with st.empty():
-      st.text("Summarizing... Please wait.")
+    if st.button("Summarize"):
+        with st.empty():
+            st.text("Summarizing... Please wait.")
 
-      try:
-        pdf_text = extract_text_from_pdf(pdf_file_path)
-      except Exception as e:
-        st.error(f"Summarization failed: {str(e)}")
-        pdf_text = None
+            try:
+                pdf_text = extract_text_from_pdf(pdf_file_path)
+            except Exception as e:
+                st.error(f"Summarization failed: {str(e)}")
+                pdf_text = None
 else:
-  text_input = st.text_area("Enter the text:")
+    text_input = st.text_area("Enter the text:")
 
-  if st.button("Summarize"):
-    with st.empty():
-      st.text("Summarizing... Please wait.")
-      pdf_text = text_input
+    if st.button("Summarize"):
+        with st.empty():
+            st.text("Summarizing... Please wait.")
+            pdf_text = text_input
 
 # Check if the pdf_text variable is empty
 if pdf_text is not None:
-  # Initialize Hugging Face models
-  checkpoint = "nsi319/legal-pegasus"
-  tokenizer = AutoTokenizer.from_pretrained(checkpoint)
-  model = AutoModelForSeq2SeqLM.from_pretrained(checkpoint)
+    # Initialize Hugging Face models
+    checkpoint = "nsi319/legal-pegasus"
+    tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+    model = AutoModelForSeq2SeqLM.from_pretrained(checkpoint)
 
-  # Tokenize and summarize the text
-  sentences = pdf_text.split(".")
-  chunks = [sentence for sentence in sentences if len(tokenizer.tokenize(sentence)) + len(tokenizer.tokenize("Summary:")) <= tokenizer.model_max_length]
+    # Tokenize and summarize the text
+    sentences = pdf_text.split(".")
+    chunks = [
+        sentence
+        for sentence in sentences
+        if len(tokenizer.tokenize(sentence)) + len(tokenizer.tokenize("Summary:"))
+        <= tokenizer.model_max_length
+    ]
 
-  # Generate and display the model's output for each input
-  st.header("Summarized Text:")
-  for chunk in chunks:
-    output = model.generate(tokenizer.encode("Summary: " + chunk, return_tensors="pt"))
-    generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
-    st.write(generated_text)
+    # Generate and display the model's output for each input
+    st.header("Summarized Text:")
+    for chunk in chunks:
+        output = model.generate(tokenizer.encode("Summary: " + chunk, return_tensors="pt"))
+        generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
+        st.write(generated_text)
 
-  st.text("Summarization complete.")
+    st.text("Summarization complete.")
