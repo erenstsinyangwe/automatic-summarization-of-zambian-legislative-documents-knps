@@ -1,3 +1,4 @@
+Rewrite code such that it can work on any time of layout or structure of tex
 import streamlit as st
 import requests
 import re
@@ -21,11 +22,10 @@ def extract_text_from_pdf(pdf_file_path):
 
 # Format the text
 def format_text(content):
-    """Formats the given text by replacing `\n` with moving to the next line
-    and removing any extra whitespace."""
-    # Remove extra whitespace
+    """Formats the given text by replacing multiple whitespaces with a single space and replacing newline characters with a line break."""
+    # Replace multiple whitespaces with a single space
     content = re.sub(r'\s+', ' ', content)
-    # Replace `\n` with moving to the next line
+    # Replace newline characters with a line break
     content = re.sub(r'\n', '\n', content)
     return content
 
@@ -36,18 +36,18 @@ def summarize(text, per):
     for sentence in sentences:
         for word in sentence.split():
             if word.lower() not in punctuation:
-                if word.lower() not in word_frequencies.keys():
+                if word.lower() not in word_frequencies:
                     word_frequencies[word.lower()] = 1
                 else:
                     word_frequencies[word.lower()] += 1
     max_frequency = max(word_frequencies.values())
-    for word in word_frequencies.keys():
+    for word in word_frequencies:
         word_frequencies[word] = word_frequencies[word] / max_frequency
-    sentence_scores = {}  # Initialize to an empty dictionary
+    sentence_scores = {}
     for sentence in sentences:
         for word in sentence.split():
-            if word.lower() in word_frequencies.keys():
-                if sentence not in sentence_scores.keys():
+            if word.lower() in word_frequencies:
+                if sentence not in sentence_scores:
                     sentence_scores[sentence] = word_frequencies[word.lower()]
                 else:
                     sentence_scores[sentence] += word_frequencies[word.lower()]
@@ -84,10 +84,10 @@ def main():
             raw = format_text(content)
 
             # Summarize the text
-            summary = summarize(raw, summary_length/100)
+            summary = summarize(raw, summary_length / 100)
 
             # Display the summary
             st.success(summary)
 
-if __name__ == '__main__':
+if _name_ == '_main_':
     main()
