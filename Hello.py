@@ -1,30 +1,4 @@
-import streamlit as st
-import transformers
-import requests
-from pdfminer.high_level import extract_text
-import nltk
-
-
-# Function to extract text from PDF URL
-def extract_text_from_pdf_url(pdf_url):
-    """Extracts the text from a PDF file.
-
-    Args:
-        pdf_url (str): The link to the PDF file.
-
-    Returns:
-        str: The text extracted from the PDF file.
-    """
-
-    try:
-        pdf_response = requests.get(pdf_url)
-        pdf_text = extract_text(pdf_response.content)
-        return pdf_text
-    except Exception as e:
-        return str(e)
-
-
-# Streamlit app
+Streamlit app
 def main():
     # Set page configuration
     st.set_page_config(
