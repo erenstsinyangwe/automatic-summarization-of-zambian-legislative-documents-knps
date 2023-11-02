@@ -1,4 +1,3 @@
-Rewrite code such that it can work on any time of layout or structure of tex
 import streamlit as st
 import requests
 import re
