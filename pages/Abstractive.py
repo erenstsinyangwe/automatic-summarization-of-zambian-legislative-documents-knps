@@ -5,8 +5,8 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import nltk
 
 # Install required packages
-!pip install transformers[sentencepiece]
-!pip install pdfminer.six
+#!pip install transformers[sentencepiece]
+#!pip install pdfminer.six
 
 # Define a function to extract text from a PDF file
 def extract_text_from_pdf(pdf_file_path):
