@@ -6,6 +6,7 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 # Install required packages
 subprocess.run(['pip', 'install', 'transformers[sentencepiece]', 'pdfminer.six'])
+subprocess.run(['pip', 'install', 'torch'])
 
 # Define a function to extract text from a PDF file
 def extract_text_from_pdf(pdf_file_path):
