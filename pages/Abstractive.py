@@ -58,4 +58,4 @@ if pdf_text is not None:
         output = model.generate(tokenizer.encode("Summary: " + chunk, return_tensors="pt"))
         generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
         st.write(generated_text)
-    st.text("Summarization complete.")
+    st.text("Summarization complete.")
