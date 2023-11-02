@@ -1,3 +1,4 @@
+Rewrite code such that it can work on any time of layout or structure of tex
 import streamlit as st
 import requests
 import re
@@ -88,5 +89,5 @@ def main():
             # Display the summary
             st.success(summary)
 
-if '_name_' == '_main_':
+if _name_ == '_main_':
     main()
