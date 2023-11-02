@@ -66,4 +66,4 @@ if pdf_text is not None:
 
 # Run Streamlit app
 if _name_ == "_main_":
-    st.run_app()
+    st.run_app()
