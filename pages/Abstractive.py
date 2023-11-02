@@ -3,6 +3,7 @@ import streamlit as st
 import requests
 from pdfminer.high_level import extract_text
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+from transformers import pipeline
 
 # Install required packages (if not already installed)
 subprocess.run(
@@ -61,7 +62,8 @@ else:
 # Check if the pdf_text variable is empty
 if pdf_text is not None:
     # Initialize Hugging Face models
-    checkpoint = "nsi319/legal-pegasus"
+    #checkpoint = "nsi319/legal-pegasus"
+    checkpoint = "facebook/bart-large-cnn"
     tokenizer = AutoTokenizer.from_pretrained(checkpoint)
     model = AutoModelForSeq2SeqLM.from_pretrained(checkpoint)
 
