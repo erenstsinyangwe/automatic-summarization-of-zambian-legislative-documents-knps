@@ -1,16 +1,11 @@
 import subprocess
-
-# Install required packages
-subprocess.run(['pip', 'install', 'transformers[sentencepiece]', 'pdfminer.six', 'spacy'])
-
 import streamlit as st
 import requests
 from pdfminer.high_level import extract_text
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-import spacy
 
-# Load English language model from spaCy
-nlp = spacy.load('en_core_web_sm')
+# Install required packages
+subprocess.run(['pip', 'install', 'transformers[sentencepiece]', 'pdfminer.six'])
 
 # Define a function to extract text from a PDF file
 def extract_text_from_pdf(pdf_file_path):
@@ -49,8 +44,7 @@ if pdf_text is not None:
     model = AutoModelForSeq2SeqLM.from_pretrained(checkpoint)
 
     # Tokenize and summarize the text
-    doc = nlp(pdf_text)
-    sentences = [sent.text for sent in doc.sents]
+    sentences = pdf_text.split(".")
     chunks = []
     for sentence in sentences:
         combined_length = len(tokenizer.tokenize(sentence)) + len(tokenizer.tokenize("Summary:"))
