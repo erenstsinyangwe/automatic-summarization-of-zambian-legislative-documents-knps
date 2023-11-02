@@ -1,12 +1,15 @@
+import subprocess
+
+# Install required packages
+subprocess.call(['pip', 'install', 'transformers[sentencepiece]'])
+subprocess.call(['pip', 'install', 'pdfminer.six'])
+subprocess.call(['pip', 'install', 'nltk'])
+
 import streamlit as st
 import requests
 from pdfminer.high_level import extract_text
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import nltk
-
-# Install required packages
-#!pip install transformers[sentencepiece]
-#!pip install pdfminer.six
 
 # Define a function to extract text from a PDF file
 def extract_text_from_pdf(pdf_file_path):
