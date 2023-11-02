@@ -62,7 +62,3 @@ if pdf_text is not None:
     st.write(generated_text)
 
   st.text("Summarization complete.")
-
-# Run Streamlit app
-if __name__ == "__main__":
-    st.run_app()
