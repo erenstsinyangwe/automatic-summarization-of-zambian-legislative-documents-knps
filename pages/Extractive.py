@@ -1,64 +1,114 @@
 import streamlit as st
-from transformers import T5Tokenizer, T5ForConditionalGeneration
+import requests
+import re
+import nltk
+from nltk.tokenize import sent_tokenize
+from spacy.lang.en.stop_words import STOP_WORDS
+from string import punctuation
+from heapq import nlargest
+import spacy
+from pdfminer.high_level import extract_text
 
-# Name of the folder containing the pre-trained model
-model_checkpoint = "stjiris/t5-portuguese-legal-summarization"
+# Define a function to extract text from a PDF file
+def extract_text_from_pdf(pdf_file_path):
+    try:
+        # Get the PDF file from the specified path
+        response = requests.get(pdf_file_path)
+        # Write the PDF content to a temporary file
+        with open("temp.pdf", "wb") as pdf_file:
+            pdf_file.write(response.content)
+        # Extract text from the temporary file
+        text = extract_text("temp.pdf")
+        return text
+    except Exception as e:
+        return str(e)
 
-# Function to summarize text using the pre-trained T5 model
-def summarize_text(text):
-    # Load the pre-trained model
-    t5_tokenizer = T5Tokenizer.from_pretrained(model_checkpoint)
-    t5_model = T5ForConditionalGeneration.from_pretrained(model_checkpoint)
+# Format the text
+def format_text(content):
+    """Formats the given text by replacing `\n` with moving to the next line
+    and removing any extra whitespace."""
+    # Remove extra whitespace
+    content = re.sub(r'\s+', ' ', content)
+    # Replace `\n` with moving to the next line
+    content = re.sub(r'\n', '\n', content)
+    return content
 
-    # Preprocess the text to be summarized
-    t5_prepared_text = "summarize: " + text
+# Summarize the text
+def summarize(text, per):
+    nlp = spacy.load('en_core_web_sm')
+    doc = nlp(text)
+    tokens = [token.text for token in doc]
+    word_frequencies = {}
+    for word in doc:
+        if word.text.lower() not in list(STOP_WORDS):
+            if word.text.lower() not in punctuation:
+                if word.text not in word_frequencies.keys():
+                    word_frequencies[word.text] = 1
+                else:
+                    word_frequencies[word.text] += 1
+    max_frequency = max(word_frequencies.values())
+    for word in word_frequencies.keys():
+        word_frequencies[word] = word_frequencies[word] / max_frequency
+    sentence_tokens = [sent for sent in doc.sents]
+    sentence_scores = {}
+    for sent in sentence_tokens:
+        for word in sent:
+            if word.text.lower() in word_frequencies.keys():
+                if sent not in sentence_scores.keys():
+                    sentence_scores[sent] = word_frequencies[word.text.lower()]
+                else:
+                    sentence_scores[sent] += word_frequencies[word.text.lower()]
+    select_length = int(len(sentence_tokens) * per)
+    summary = nlargest(select_length, sentence_scores, key=sentence_scores.get)
+    final_summary = [word.text for word in summary]
+    summary = ''.join(final_summary)
+    return summary
 
-    # Encode the preprocessed text into tokens
-    tokenized_text = t5_tokenizer.encode(t5_prepared_text, return_tensors="pt")
-
-    # Generate a summary of the text
-    summary_ids = t5_model.generate(
-        tokenized_text,
-        num_beams=4,
-        no_repeat_ngram_size=2,
-        min_length=512,
-        max_length=1024,
-        early_stopping=True
-    )
-
-    # Decode the summary IDs into text
-    output = t5_tokenizer.decode(summary_ids[0], skip_special_tokens=True)
-
-    return output
-
-# Main function to run the app
+# Streamlit app
 def main():
-    # Set page configuration
-    st.set_page_config(
-        page_title="Zambian Legislative Document Summarizer",
-        page_icon="📜",
-    )
+    # Set page title
+    st.title("PDF Summarization")
 
-    # Display a radio button to allow the user to select whether to input text or a PDF link
-    input_type = st.radio(
-        "Select input type:",
-        ("Text", "PDF link"),
-    )
+    # Input link to the PDF file
+    pdf_link = st.text_input("Enter the link to the PDF file")
 
-    # Get the text or PDF link to be summarized from the user
-    if input_type == "Text":
-        input_text = st.text_area("Text to summarize:")
-    elif input_type == "PDF link":
-        pdf_link = st.text_input("PDF link:")
-        # Extract the text from the PDF link using a PDF parser
-        text = extract_text_from_pdf(pdf_link)
+    # Input option for the length of the summary
+    summary_length = st.slider("Select the length of the summary (in percentage)", 0, 100, 50)
 
-    # Summarize the text
-    summarized_text = summarize_text(text)
+    # Radio button to initiate summarization
+    if st.button("Summarize"):
+        # Check if PDF link is provided
+        if pdf_link:
+            # Display progress message
+            st.info("Summarization in progress...")
 
-    # Display the summarized text
-    st.write("Summarized text:")
-    st.write(summarized_text)
+            # Extract text from the PDF file
+            pdf_text = extract_text_from_pdf(pdf_link)
 
-if __name__ == "__main__":
-    main()
+            # Store the extracted text as a string variable
+            content = pdf_text.strip()
+
+            # Format the text
+            raw = format_text(content)
+
+            # Tokenize the text into sentences
+            sentences = sent_tokenize(raw)
+
+            # Store the extracted sentences as a string variable
+            text = '\n'.join(sentences)
+
+            # Replace '\n' with moving to the next line
+            text = text.replace('\n', '\n')
+
+            # Perform summarization
+            final_summary = summarize(text, summary_length/100)
+
+            # Display success message and the summary
+            st.success("Summarization successful!")
+            st.text_area("Summary", value=final_summary, height=200)
+        else:
+            # Display error message if PDF link is not provided
+            st.error("Please enter the link to the PDF file.")
+
+# Run the Streamlit app
+main()
