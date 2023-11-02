@@ -1,8 +1,6 @@
 import subprocess
 import streamlit as st
 import requests
-import transformers
-
 from pdfminer.high_level import extract_text
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
@@ -17,9 +15,9 @@ subprocess.run(
         "torchvision",
         "torchaudio",
         "torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118",
-        "transfomers",
+        "transformers",
         "spacy",
-        "nampy",
+        "numpy",
     ],
     check=True,
 )
