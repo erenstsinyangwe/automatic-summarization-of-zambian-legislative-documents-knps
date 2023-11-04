@@ -5,6 +5,7 @@ from io import BytesIO
 import streamlit as st
 from pdfminer.high_level import extract_text
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+import nltk  # Import the NLTK library
 
 # Function to install packages
 def install_packages(package_list):
