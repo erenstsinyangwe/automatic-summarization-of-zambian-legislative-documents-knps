@@ -4,6 +4,19 @@ import re
 import string
 import pdfplumber
 import spacy
+import subprocess
+
+# Function to install packages
+def install_packages(package_list):
+    for package in package_list:
+        try:
+            subprocess.check_call(["pip", "install", package])
+        except Exception as e:
+            st.error(f"An error occurred while installing {package}: {e}")
+
+# Install required packages, including pdfplumber and spacy
+required_packages = ['pdfplumber', 'spacy']
+install_packages(required_packages)
 
 # Load spaCy language model
 nlp = spacy.load("en_core_web_sm")
