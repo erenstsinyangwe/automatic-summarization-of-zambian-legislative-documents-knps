@@ -6,6 +6,30 @@ from nltk.tokenize import word_tokenize, sent_tokenize
 import string
 from pdfminer.high_level import extract_text
 
+# Set custom CSS for better styling
+st.write(
+    """
+    <style>
+    .summary-text {
+        color: #333;
+        background-color: #e5e5e5;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .statistics-text {
+        color: #666;
+        background-color: #f0f0f0;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .meter-label {
+        text-align: center;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 nltk.download("punkt")
 
 def extract_pdf_text(pdf_link: str) -> str:
@@ -17,6 +41,10 @@ def extract_pdf_text(pdf_link: str) -> str:
     except Exception as e:
         raise RuntimeError(f"Failed to extract text from PDF file: {e}")
     return text
+
+def remove_stand_alone_numbers(text: str) -> str:
+    # Use regex to remove standalone numbers while preserving meaningful numbers within text
+    return re.sub(r'(?<=\s)\d+(?=\s)', '', text)
 
 st.title("Abstractive Summarization")
 st.write("Abstractive summarization is a technique that generates a summary of a document by interpreting and rephrasing the text. It goes beyond extracting key sentences and aims to produce human-like summaries, which may not be present in the original text.")
@@ -32,6 +60,7 @@ if st.button("Summarize"):
         try:
             pdf_text = extract_pdf_text(pdf_link)
             pdf_text = re.sub(r"\s+", " ", pdf_text)
+            pdf_text = remove_stand_alone_numbers(pdf_text)  # Remove standalone numbers
         except Exception as e:
             st.error(f"Error: {e}")
         else:
@@ -52,15 +81,30 @@ if st.button("Summarize"):
                 scores = {sentence: sum(word_frequencies.get(word, 0) for word in word_tokenize(sentence)) for sentence in sentences}
                 important_sentences = sorted(sentences, key=lambda sentence: scores[sentence], reverse=True)
                 
-                num_sentences = int(per / 100 * len(sentences))
+                num_sentences = max(1, int(per / 100 * len(sentences)))  # Ensure at least 1 sentence is selected
                 selected_sentences = important_sentences[:num_sentences]
                 
-                summary = " ".join(selected_sentences)
+                summary = "\n\n".join(selected_sentences)  # Add line breaks for readability
                 return summary
 
             summary = summarize(pdf_text, summary_percentage)
+            
             if summary:
-                st.text("Summary:")
-                st.write(summary)
+                # Display the summary with better readability
+                st.markdown(f'<div class="summary-text">{summary}</div>', unsafe_allow_html=True)
+                
+                # Calculate statistics
+                original_char_count = len(pdf_text)
+                summary_char_count = len(summary)
+                
+                # Display statistics
+                st.markdown(
+                    f'<div class="statistics-text">Original Document Character Count: {original_char_count} characters</div>',
+                    unsafe_allow_html=True
+                )
+                st.markdown(
+                    f'<div class="statistics-text">Summary Character Count: {summary_char_count} characters</div>',
+                    unsafe_allow_html=True
+                )
             else:
                 st.warning("The summary is empty.")

@@ -14,8 +14,8 @@ st.title("Zambian Automatic Legislative Document Summarizer")
 # Create a text input field for the PDF URL
 pdf_url = st.text_input("Enter PDF URL:")
 
-# Create an input field for the user to specify the summarization percentage
-summarization_percentage = st.number_input("Enter Summarization Percentage (e.g., 10 for 10%):", min_value=1, max_value=100, step=1, value=20)  # Set the default value to 20
+# Create a slider for the user to specify the summarization percentage
+summarization_percentage = st.slider("Select Summarization Percentage", min_value=1, max_value=100, step=1, value=20)  # Set the default value to 20
 
 # Calculate the target length based on the specified percentage
 max_summary_length = summarization_percentage / 100
@@ -52,7 +52,6 @@ if st.button("Summarize"):
 
         st.text(original_text_description)
         st.text(target_summary_description)
-
 
         st.info("Summarizing the document...")
 
