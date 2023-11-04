@@ -15,7 +15,7 @@ def install_packages(package_list):
         except Exception as e:
             st.error(f"An error occurred while installing {package}: {e}")
 
-# Install required packages
+# Install required packages, including NLTK
 required_packages = ['torch', 'nltk']
 install_packages(required_packages)
 
