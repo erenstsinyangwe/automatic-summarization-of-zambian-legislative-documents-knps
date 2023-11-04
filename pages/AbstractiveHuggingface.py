@@ -1,28 +1,35 @@
-# Install necessary packages if not already installed
+# Import necessary libraries
 import subprocess
+import requests
+from io import BytesIO
+import nltk
+import streamlit as st
+from pdfminer.high_level import extract_text
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
+# Function to install packages
 def install_packages(package_list):
     for package in package_list:
         try:
-            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+            subprocess.check_call(["pip", "install", package])
         except Exception as e:
-            st.error(f"An error occurred while installing {package}: {e}")
-
-required_packages = ['torch', 'nltk']
+            print(f"An error occurred while installing {package}: {e}")
 
 # Install required packages
+required_packages = ['torch', 'nltk']
 install_packages(required_packages)
 
-# Now import the necessary libraries
-import streamlit as st
-import requests
-from io import BytesIO
-from pdfminer.high_level import extract_text
-import nltk
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-
-# Declare a global variable to store the extracted text
-FileContent = None
+# Function to extract text from a PDF URL
+def extract_text_from_url(pdf_url):
+    try:
+        response = requests.get(pdf_url)
+        response.raise_for_status()
+        pdf_stream = BytesIO(response.content)
+        pdf_text = extract_text(pdf_stream)
+        return pdf_text
+    except Exception as e:
+        st.error(f"An error occurred while extracting text from the PDF: {e}")
+        return None
 
 # Define the Streamlit app title
 st.title("Zambian Automatic Legislative Document Summarizer")
@@ -36,30 +43,18 @@ summarization_percentage = st.slider("Select Summarization Percentage", min_valu
 # Calculate the target length based on the specified percentage
 max_summary_length = summarization_percentage / 100
 
-# Define a function to extract text from a PDF URL
-def extract_text_from_url(pdf_url):
-    try:
-        response = requests.get(pdf_url)
-        response.raise_for_status()
-        pdf_stream = BytesIO(response.content)
-        pdf_text = extract_text(pdf_stream)
-        return pdf_text
-    except Exception as e:
-        return None
-
 # Check if the "Summarize" button is clicked
 if st.button("Summarize"):
     pdf_text = extract_text_from_url(pdf_url)
-    FileContent = pdf_text
 
-    if FileContent:
+    if pdf_text:
         st.text("Summarized Text:")
 
-        # Define a function to count characters in the text
+        # Function to count characters in the text
         def count_characters(text):
             return len(text) if text is not None else 0
 
-        original_text_length = count_characters(FileContent)
+        original_text_length = count_characters(pdf_text)
         
         target_length = int(max_summary_length * original_text_length)
         original_text_description = f"Original text is {original_text_length} characters long."
@@ -78,7 +73,7 @@ if st.button("Summarize"):
 
         nltk.download('punkt')  # Move nltk download outside the loop
 
-        sentences = nltk.tokenize.sent_tokenize(FileContent)
+        sentences = nltk.tokenize.sent_tokenize(pdf_text)
 
         # Create the chunks
         length = 0
