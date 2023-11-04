@@ -2,7 +2,6 @@
 import subprocess
 import requests
 from io import BytesIO
-import nltk
 import streamlit as st
 from pdfminer.high_level import extract_text
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
@@ -13,11 +12,15 @@ def install_packages(package_list):
         try:
             subprocess.check_call(["pip", "install", package])
         except Exception as e:
-            print(f"An error occurred while installing {package}: {e}")
+            st.error(f"An error occurred while installing {package}: {e}")
 
 # Install required packages
 required_packages = ['torch', 'nltk']
 install_packages(required_packages)
+
+# Now import the necessary libraries, including nltk
+import nltk
+nltk.download('punkt')  # Download the necessary NLTK data
 
 # Function to extract text from a PDF URL
 def extract_text_from_url(pdf_url):
@@ -67,13 +70,10 @@ if st.button("Summarize"):
         st.info("Summarizing the document...")
 
         checkpoint = "facebook/bart-large-cnn"
-        #checkpoint = "nsi319/legal-led-base-16384"
         tokenizer = AutoTokenizer.from_pretrained(checkpoint)
         model = AutoModelForSeq2SeqLM.from_pretrained(checkpoint)
 
-        nltk.download('punkt')  # Move nltk download outside the loop
-
-        sentences = nltk.tokenize.sent_tokenize(pdf_text)
+        sentences = nltk.sent_tokenize(pdf_text)
 
         # Create the chunks
         length = 0
