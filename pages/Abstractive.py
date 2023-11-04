@@ -2,8 +2,11 @@ import streamlit as st
 import requests
 import re
 import string
-from pdfminer.high_level import extract_text
-import nltk
+import pdfplumber
+import spacy
+
+# Load spaCy language model
+nlp = spacy.load("en_core_web_sm")
 
 # Set custom CSS for better styling
 st.write(
@@ -29,15 +32,13 @@ st.write(
     unsafe_allow_html=True
 )
 
-# Download NLTK data
-nltk.download("punkt")
-
 def extract_pdf_text(pdf_link: str) -> str:
     try:
         response = requests.get(pdf_link)
         with open("temp.pdf", "wb") as pdf_file:
             pdf_file.write(response.content)
-        text = extract_text("temp.pdf")
+        with pdfplumber.open("temp.pdf") as pdf:
+            text = "\n".join([page.extract_text() for page in pdf.pages])
     except Exception as e:
         raise RuntimeError(f"Failed to extract text from PDF file: {e}")
     return text
@@ -65,20 +66,20 @@ if st.button("Summarize"):
             st.error(f"Error: {e}")
         else:
             def summarize(text: str, per: float) -> str:
-                sentences = nltk.sent_tokenize(text)
-                tokens = nltk.word_tokenize(text)
-                stopwords = set(string.punctuation + " ")
+                doc = nlp(text)
+                sentences = [sent.text for sent in doc.sents]
+                tokens = [token.text for token in doc if not token.is_punct]
                 word_frequencies = {}
                 
                 for token in tokens:
                     token = token.lower()
-                    if token not in stopwords:
+                    if token not in string.punctuation:
                         if token not in word_frequencies:
                             word_frequencies[token] = 1
                         else:
                             word_frequencies[token] += 1
                 
-                scores = {sentence: sum(word_frequencies.get(word, 0) for word in nltk.word_tokenize(sentence)) for sentence in sentences}
+                scores = {sentence: sum(word_frequencies.get(word.lower(), 0) for word in sentence.split()) for sentence in sentences}
                 important_sentences = sorted(sentences, key=lambda sentence: scores[sentence], reverse=True)
                 
                 num_sentences = max(1, int(per / 100 * len(sentences)))  # Ensure at least 1 sentence is selected
