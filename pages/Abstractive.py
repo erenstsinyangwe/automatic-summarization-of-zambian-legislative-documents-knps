@@ -1,10 +1,10 @@
-import streamlit as st
+import subprocess
 import requests
 import re
 import string
 import pdfplumber
 import spacy
-import subprocess
+import streamlit as st
 
 # Function to install packages
 def install_packages(package_list):
@@ -49,7 +49,7 @@ def extract_pdf_text(pdf_link: str) -> str:
     try:
         response = requests.get(pdf_link)
         with open("temp.pdf", "wb") as pdf_file:
-            pdf_file.write response.content()
+            pdf_file.write(response.content)
         with pdfplumber.open("temp.pdf") as pdf:
             text = "\n".join([page.extract_text() for page in pdf.pages])
     except Exception as e:
