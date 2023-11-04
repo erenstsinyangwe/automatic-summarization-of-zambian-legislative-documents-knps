@@ -5,7 +5,6 @@ from io import BytesIO
 import streamlit as st
 from pdfminer.high_level import extract_text
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-import nltk  # Import the NLTK library
 
 # Function to install packages
 def install_packages(package_list):
@@ -15,13 +14,9 @@ def install_packages(package_list):
         except Exception as e:
             st.error(f"An error occurred while installing {package}: {e}")
 
-# Install required packages, including NLTK
-required_packages = ['torch', 'nltk']
+# Install required packages
+required_packages = ['torch']
 install_packages(required_packages)
-
-# Now import the necessary libraries, including nltk
-import nltk
-nltk.download('punkt')  # Download the necessary NLTK data
 
 # Function to extract text from a PDF URL
 def extract_text_from_url(pdf_url):
@@ -74,7 +69,8 @@ if st.button("Summarize"):
         tokenizer = AutoTokenizer.from_pretrained(checkpoint)
         model = AutoModelForSeq2SeqLM.from_pretrained(checkpoint)
 
-        sentences = nltk.sent_tokenize(pdf_text)
+        # Tokenize the text into sentences using built-in sent_tokenize
+        sentences = pdf_text.split('\n')  # Split on newlines as a rough approximation
 
         # Create the chunks
         length = 0
