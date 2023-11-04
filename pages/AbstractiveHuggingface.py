@@ -1,3 +1,19 @@
+# Install necessary packages if not already installed
+import subprocess
+
+def install_packages(package_list):
+    for package in package_list:
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+        except Exception as e:
+            st.error(f"An error occurred while installing {package}: {e}")
+
+required_packages = ['torch', 'nltk']
+
+# Install required packages
+install_packages(required_packages)
+
+# Now import the necessary libraries
 import streamlit as st
 import requests
 from io import BytesIO
