@@ -14,8 +14,8 @@ def install_packages(package_list):
         except Exception as e:
             st.error(f"An error occurred while installing {package}: {e}")
 
-# Install required packages, including pdfplumber and spacy
-required_packages = ['pdfplumber', 'spacy']
+# Install required packages, including PyTorch, pdfplumber, and spacy
+required_packages = ['torch', 'pdfplumber', 'spacy']
 install_packages(required_packages)
 
 # Load spaCy language model
