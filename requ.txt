@@ -1,0 +1,16 @@
+altair
+numpy
+pandas
+pydeck
+streamlit
+pdfminer.six
+requests
+transformers[sentencepiece]
+pdfminer.six
+streamlit
+pandas
+numpy
+nltk
+torch
+transformers
+pdfplumber
