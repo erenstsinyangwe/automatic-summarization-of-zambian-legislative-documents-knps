@@ -5,13 +5,16 @@ from modules.summarizer import abstractive_summarize
 from requests.exceptions import ConnectionError
 
 def main():
-    st.title("PDF Text Extraction, Processing, and Summarization App")
+    st.set_page_config(page_title="Zambian Summarization App", page_icon="📜", layout="wide")
 
     # Section for PDF Text Extraction
     st.header("PDF Text Extraction")
 
     # User input: PDF URL
     pdf_url = st.text_input("Enter the PDF URL:")
+
+    # User input: Desired percentage for the summary length
+    summary_percentage = st.slider("Select the desired percentage for the summary length", 1, 100, 20, 1)
 
     # Extract text when the user clicks the button
     if st.button("Extract Text"):
@@ -45,11 +48,11 @@ def main():
                 # Stop further processing if text processing fails
                 return
 
-            # Summarize the processed text
+            # Summarize the processed text with the specified percentage
             summary_message = st.empty()
             summary_message.info("Generating text summary...")
 
-            summary = abstractive_summarize(processed_text)
+            summary = abstractive_summarize(processed_text, summary_percentage)
 
             # Display the processed text and summary
             if summary:

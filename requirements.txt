@@ -1,7 +1,5 @@
 nltk==3.8.1
 pdfminer.six==20221105
 Requests==2.31.0
-spacy==3.7.2
 streamlit==1.27.2
-streamlit_option_menu==0.3.6
 transformers==4.33.0
