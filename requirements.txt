@@ -1,5 +1,5 @@
-nltk==3.8.1
-pdfminer.six==20221105
-Requests==2.31.0
+nltk
+pdfminer.six
+Requests
 streamlit
-transformers==4.33.0
+transformers
