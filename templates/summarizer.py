@@ -16,5 +16,4 @@ def abstractive_summarize(text, summary_percentage=20):
     # Generate the summary
     summary_ids = model.generate(inputs["input_ids"], max_length=max_length, length_penalty=3.0, num_beams=4, early_stopping=True)
     summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
-
     return summary

@@ -1,5 +1,0 @@
-nltk
-pdfminer.six
-Requests
-streamlit
-transformers
