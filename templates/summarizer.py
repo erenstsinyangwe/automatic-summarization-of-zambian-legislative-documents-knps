@@ -1,19 +1,28 @@
+from flask import Flask, render_template, request
 from transformers import pipeline, BartTokenizer, BartForConditionalGeneration
-from transformers import pipeline
+import torch
 
-def abstractive_summarize(text, summary_percentage=20):
-    # Load pre-trained BART model and tokenizer
-    model_name = "facebook/bart-large-cnn"
-    tokenizer = BartTokenizer.from_pretrained(model_name)
-    model = BartForConditionalGeneration.from_pretrained(model_name)
+app = Flask(__name__)
 
-    # Tokenize the input text
-    inputs = tokenizer(text, return_tensors="pt", max_length=1024, truncation=True)
+model_name = "facebook/bart-large-cnn"
+tokenizer = BartTokenizer.from_pretrained(model_name)
 
-    # Calculate the desired summary length based on the percentage of the original text
-    max_length = int(len(inputs["input_ids"][0]) * (summary_percentage / 100))
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = BartForConditionalGeneration.from_pretrained(model_name).to(device)
 
-    # Generate the summary
-    summary_ids = model.generate(inputs["input_ids"], max_length=max_length, length_penalty=3.0, num_beams=4, early_stopping=True)
-    summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
-    return summary
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/text-summarization', methods=["POST"])
+def summarize():
+    if request.method == "POST":
+        inputtext = request.form["inputtext_"]
+        input_text = "summarize: " + inputtext
+        tokenized_text = tokenizer.encode(input_text, return_tensors='pt', max_length=1024).to(device)
+        summary_ = model.generate(tokenized_text, min_length=350, max_length=500)
+        summary = tokenizer.decode(summary_[0], skip_special_tokens=True)
+        return render_template("output.html", data={"summary": summary})
+
+if __name__ == '__main__':
+    app.run()
