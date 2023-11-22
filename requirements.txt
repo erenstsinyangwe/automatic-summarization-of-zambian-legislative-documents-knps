@@ -1,4 +1,5 @@
-fitz==0.0.1.dev2
-Flask==3.0.0
-torch==2.1.0
-transformers==4.35.2
+fitz
+Flask
+torch
+transformers
+PyMuPDF
