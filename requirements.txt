@@ -2,4 +2,5 @@ fitz
 Flask
 torch
 transformers
-PyMuPDF
+pdfminer.six
+streamlit 
